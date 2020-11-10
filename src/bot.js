@@ -24,12 +24,16 @@ getEvents = async (limit, channel) => {
               .addField("Weight: ", ctf.weight, true)
               .addField(
                 "Start Date: ",
-                new Date(ctf.start).toLocaleDateString("en-IN"),
+                new Date(ctf.start).toLocaleDateString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                }),
                 true
               )
               .addField(
                 "Start Time: ",
-                new Date(ctf.start).toLocaleTimeString("en-IN"),
+                new Date(ctf.start).toLocaleTimeString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                }),
                 true
               )
               .addField("CTFTime URL: ", ctf.ctftime_url, true)
