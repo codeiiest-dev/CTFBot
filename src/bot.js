@@ -16,16 +16,17 @@ getEvents = async (limit, channel) => {
     const data = await axios
       .get(EVENT_URL + limit, { headers: HEADERS })
       .then((resp) => {
-        // console.log(resp);
         if (resp) {
-          console.log("Data: ", resp.data);
           resp.data.forEach((ctf) => {
-            console.log(ctf.title);
+            // console.log(ctf.title);
             const eventEmbed = new MessageEmbed()
               .setTitle(ctf.title)
               .setURL(ctf.url)
-              .setDescription(ctf.description)
-              .setTimestamp(new Date(ctf.start).toLocaleString());
+              .setDescription(
+                ctf.description +
+                  "\n**Starts at:** " +
+                  new Date(ctf.start).toLocaleString()
+              );
             channel.send(eventEmbed);
           });
         }
@@ -46,9 +47,27 @@ client.on("message", (msg) => {
       .trim()
       .substring(PREFIX.length)
       .split(/\s+/);
-    console.log(CMD, args);
-
-    getEvents(2, msg.channel);
+    const channel = msg.channel;
+    if (CMD.toLowerCase() === "future") {
+      if (args.length === 0) {
+        channel.send(PREFIX + "future <number less than 10>");
+      } else {
+        const strNum = args[0];
+        // console.log(strNum, typeof strNum);
+        const num = parseInt(strNum, 10);
+        if (num < 0 || num > 10) {
+          channel.send(
+            "Please input a value b/w 1 and 10, don't want to overload CTFTime API :| "
+          );
+        } else {
+          getEvents(num, channel);
+        }
+      }
+    } else {
+      channel.send(
+        "Can't even type properly yet and want to do CTF's? **HAHAHAH**"
+      );
+    }
   }
 });
 
