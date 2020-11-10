@@ -21,16 +21,27 @@ getEvents = async (limit, channel) => {
             // console.log(ctf.title);
             const eventEmbed = new MessageEmbed()
               .setTitle(ctf.title)
+              .addField("Weight: ", ctf.weight, true)
+              .addField(
+                "Start Date: ",
+                new Date(ctf.start).toLocaleDateString("en-IN"),
+                true
+              )
+              .addField(
+                "Start Time: ",
+                new Date(ctf.start).toLocaleTimeString("en-IN"),
+                true
+              )
+              .addField("CTFTime URL: ", ctf.ctftime_url, true)
+              .addField("Type: ", ctf.format, true)
               .setURL(ctf.url)
+              .setFooter("Times in IST (+5:30)")
               .setDescription(
-                ctf.description +
-                  "\n**Starts at:** " +
-                  new Date(ctf.start).toLocaleString()
+                ctf.description.slice(0, Math.min(140, ctf.description.length))
               );
             channel.send(eventEmbed);
           });
         }
-        // return resp;
       });
   } catch (error) {
     console.error("Error: ", error);
@@ -38,7 +49,17 @@ getEvents = async (limit, channel) => {
 };
 
 client.on("ready", () => {
-  console.log(`${client.user.username} is logged in! ${client.user.tag}`);
+  console.log(` ${client.user.tag} is logged in!`);
+  client.user
+    .setPresence({
+      activity: {
+        name: "sadn1ck segfault",
+        type: "WATCHING",
+        details: "(1001)",
+      },
+    })
+    .then(console.log)
+    .catch(console.error);
 });
 
 client.on("message", (msg) => {
@@ -47,28 +68,28 @@ client.on("message", (msg) => {
       .trim()
       .substring(PREFIX.length)
       .split(/\s+/);
+
     const channel = msg.channel;
+
     if (CMD.toLowerCase() === "future") {
       if (args.length === 0) {
         channel.send(PREFIX + "future <number less than 10>");
+        // if no args
       } else {
         const strNum = args[0];
-        // console.log(strNum, typeof strNum);
         const num = parseInt(strNum, 10);
         if (num < 0 || num > 10) {
           channel.send(
-            "Please input a value b/w 1 and 10, don't want to overload CTFTime API :| "
+            "Please input a value b/w 1 and 10, don't want to overload CTFTime API ┬─┬ ノ( ゜-゜ノ)"
           );
         } else {
           getEvents(num, channel);
         }
       }
     } else {
-      channel.send(
-        "Can't even type properly yet and want to do CTF's? **HAHAHAH**"
-      );
+      channel.send("INVALID COMMAND (╯°□°）╯︵ ┻━┻");
     }
   }
 });
 
-client.login(process.env.DISCORDJS_BOT_TOKEN);
+client.login(process.env.TOKEN);
