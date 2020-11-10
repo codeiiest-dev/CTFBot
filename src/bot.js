@@ -53,7 +53,7 @@ client.on("ready", () => {
   client.user
     .setPresence({
       activity: {
-        name: "sadn1ck segfault",
+        name: "sadn1ck segfault | !ctf",
         type: "WATCHING",
         details: "(1001)",
       },
@@ -78,7 +78,7 @@ client.on("message", (msg) => {
       } else {
         const strNum = args[0];
         const num = parseInt(strNum, 10);
-        if (num < 0 || num > 10) {
+        if (num <= 0 || num > 10) {
           channel.send(
             "Please input a value b/w 1 and 10, don't want to overload CTFTime API ┬─┬ ノ( ゜-゜ノ)"
           );
@@ -86,6 +86,11 @@ client.on("message", (msg) => {
           getEvents(num, channel);
         }
       }
+    } else if (CMD.toLowerCase() === "help") {
+      const helpEmbed = new MessageEmbed()
+        .setTitle("Usage:\n!ctf <command> [...args]")
+        .addField("!ctf future n (n ∈ [1, 10]): ", "Displays n upcoming CTFs");
+      channel.send(helpEmbed);
     } else {
       channel.send("INVALID COMMAND (╯°□°）╯︵ ┻━┻");
     }
