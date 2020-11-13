@@ -11,6 +11,7 @@ const HEADERS = {
     "Mozilla/5.0 (X11; Linux x86_64; rv:82.0) Gecko/20100101 Firefox/82.0",
 };
 
+// @TODO: Add duration
 getEvents = async (limit, channel) => {
   try {
     const data = await axios
@@ -20,6 +21,7 @@ getEvents = async (limit, channel) => {
           resp.data.forEach((ctf) => {
             // console.log(ctf.title);
             const eventEmbed = new MessageEmbed()
+              .setThumbnail(ctf.logo)
               .setTitle(ctf.title)
               .addField("Weight: ", ctf.weight, true)
               .addField(
@@ -32,6 +34,25 @@ getEvents = async (limit, channel) => {
               .addField(
                 "Start Time: ",
                 new Date(ctf.start).toLocaleTimeString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                }),
+                true
+              )
+              .addField(
+                "Duration: ",
+                `${ctf.duration.days} day(s) ${ctf.duration.hours} hours`,
+                true
+              )
+              .addField(
+                "Finish Date: ",
+                new Date(ctf.finish).toLocaleDateString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                }),
+                true
+              )
+              .addField(
+                "Finish Time: ",
+                new Date(ctf.finish).toLocaleTimeString("en-IN", {
                   timeZone: "Asia/Kolkata",
                 }),
                 true
