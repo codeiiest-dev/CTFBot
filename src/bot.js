@@ -3,7 +3,7 @@ require("dotenv").config();
 const { Client, Message, MessageEmbed, Discord } = require("discord.js");
 const axios = require("axios");
 const client = new Client();
-const { teamRegister, getTeamId } = require('./db')
+const { teamRegister, getTeamId } = require("./db");
 
 const PREFIX = "!ctf ";
 const EVENT_URL = "https://ctftime.org/api/v1/events/?limit=";
@@ -12,7 +12,6 @@ const HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (X11; Linux x86_64; rv:82.0) Gecko/20100101 Firefox/82.0",
 };
-
 
 // @TODO: Add duration
 getEvents = async (limit, channel) => {
@@ -75,44 +74,40 @@ getEvents = async (limit, channel) => {
   }
 };
 
-getTeamInfo = async(teamId, channel) => {
+getTeamInfo = async (teamId, channel) => {
   console.log(teamId);
   try {
     const data = await axios
       .get(`${TEAM_URL}${teamId}/`, { headers: HEADERS })
       .then((resp) => {
         if (resp) {
-            const teamData = resp.data;
-            console.log(teamData);
-            const ratingYear = Object.keys(teamData.rating[0])[0]
-            const rating = teamData.rating[0][ratingYear]
-            const eventEmbed = new MessageEmbed()
-              .setTitle(teamData.name)
-              .addField(
-                "ID: ",
-                teamData.id,
-                true
-              )
-              .addField(`Rating (${ratingYear})`, parseFloat(rating.rating_points).toFixed(2), true)
-              .addField(`Rank (${ratingYear})`, rating.rating_place, true)
-              .addField(
-                "Country: ",
-                teamData.country,
-                true
-              ).addField(
-                "Aliases: ",
-                teamData.aliases.slice(0, 2).join(' , '),
-                true
-              )
-              .setURL(`https://ctftime.org/team/${teamId}`)
-            channel.send(eventEmbed);
+          const teamData = resp.data;
+          console.log(teamData);
+          const ratingYear = Object.keys(teamData.rating[0])[0];
+          const rating = teamData.rating[0][ratingYear];
+          const eventEmbed = new MessageEmbed()
+            .setTitle(teamData.name)
+            .addField("ID: ", teamData.id, true)
+            .addField(
+              `Rating (${ratingYear})`,
+              parseFloat(rating.rating_points).toFixed(2),
+              true
+            )
+            .addField(`Rank (${ratingYear})`, rating.rating_place, true)
+            .addField("Country: ", teamData.country, true)
+            .addField(
+              "Aliases: ",
+              teamData.aliases.slice(0, 2).join(" , "),
+              true
+            )
+            .setURL(`https://ctftime.org/team/${teamId}`);
+          channel.send(eventEmbed);
         }
       });
   } catch (error) {
     console.error("Error: ", error);
   }
-}
-
+};
 
 client.on("ready", () => {
   console.log(` ${client.user.tag} is logged in!`);
@@ -136,32 +131,36 @@ client.on("message", async (msg) => {
       .split(/\s+/);
 
     const channel = msg.channel;
-
+    console.log(CMD, args);
     if (CMD.toLowerCase() === "future") {
       if (args.length === 0) {
-        channel.send(PREFIX + "future <number less than 10>");
+        channel.send("Missing argument: n (no. of results wanted)");
         // if no args
       } else {
         const strNum = args[0];
         const num = parseInt(strNum, 10);
-        if (num <= 0 || num > 10) {
+        console.log(num);
+        if (num >= 1 && num <= 10 && num != NaN) {
+          getEvents(num, channel);
+        } else {
           channel.send(
             "Please input a value b/w 1 and 10, don't want to overload CTFTime API ┬─┬ ノ( ゜-゜ノ)"
           );
-        } else {
-          getEvents(num, channel);
         }
       }
     } else if (CMD.toLowerCase() === "help") {
       const helpEmbed = new MessageEmbed()
         .setTitle("Usage:\n!ctf <command> [...args]")
-        .addField("!ctf future n (n ∈ [1, 10]): ", "Displays n upcoming CTFs")
-        .addField("!ctf register <team-name> <team-id>: ", "Register team name with the CTFtime id")
-        .addField("!ctf showoff <team-name>: ", "Displays team details")
+        .addField("!ctf future n (n ∈ [1, 10])", "Displays n upcoming CTFs")
+        .addField(
+          "!ctf register <TeamName> <TeamID>",
+          "Register team name with the CTFtime id"
+        )
+        .addField("!ctf showoff <TeamName>", "Displays team details");
       channel.send(helpEmbed);
     } else if (CMD.toLowerCase() === "register") {
       if (args.length != 2) {
-        channel.send(PREFIX + "register <team-name> <team-id>");
+        channel.send(PREFIX + "register <TeamName> <TeamID>");
       } else {
         const teamName = args[0];
         const teamId = args[1];
@@ -176,8 +175,7 @@ client.on("message", async (msg) => {
         const teamId = await getTeamId(teamName);
         getTeamInfo(teamId, channel);
       }
-    }
-    else {
+    } else {
       channel.send("INVALID COMMAND (╯°□°）╯︵ ┻━┻");
     }
   }
