@@ -218,12 +218,14 @@ client.on("message", async (msg) => {
     } else if (CMD.toLowerCase() === "help") {
       const helpEmbed = new MessageEmbed()
         .setTitle("Usage:\n!ctf <command> [...args]")
-        .addField("!ctf future n (n ∈ [1, 10])", "Displays n upcoming CTFs")
+        .addField("!ctf future n (n ∈ [1, 10])", "Displays n upcoming CTFs.")
+        .addField("!ctf past n (n ∈ [1, 10])", "Displays past CTFs over last n days.")
         .addField(
           "!ctf register <TeamName> <TeamID>",
           "Register team name with the CTFtime id"
         )
         .addField("!ctf showoff <TeamName>", "Displays team details");
+        
       channel.send(helpEmbed);
     } else if (CMD.toLowerCase() === "register") {
       if (args.length != 2) {
