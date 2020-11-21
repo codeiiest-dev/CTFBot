@@ -142,6 +142,81 @@ getPastEvents = async (limit, channel) => {
     console.log("Error: ", error);
   }
 };
+
+getRunningEvents = async (channel) => {
+  try {
+    var d = Math.round((new Date().getTime()) / 1000);
+    var st = d - 8 * 86400;
+    var end = d + 8 * 86400;
+    // console.log(st, end, d);
+    axios.get(PAST_EVENTS_URL + st + END_URL + end + "&limit=100", {
+      headers: HEADERS,
+    }).then((resp) => {
+      if (resp.data.length > 0) {
+        resp.data.forEach(async (ctf) => {
+          var ctf_start = Math.round((new Date(ctf.start).getTime()) / 1000);
+          var ctf_end = Math.round((new Date(ctf.finish).getTime()) / 1000);
+          // console.log(ctf_start, ctf_end, d);
+          if (d >= ctf_start && d <= ctf_end) {
+            const eventEmbed = new MessageEmbed()
+              .setThumbnail(ctf.logo)
+              .setTitle(ctf.title)
+              .addField("Weight: ", ctf.weight, true)
+              .addField(
+                "Start Date: ",
+                new Date(ctf.start).toLocaleDateString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                }),
+                true
+              )
+              .addField(
+                "Start Time: ",
+                new Date(ctf.start).toLocaleTimeString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                }),
+                true
+              )
+              .addField(
+                "Duration: ",
+                `${ctf.duration.days} day(s) ${ctf.duration.hours} hours`,
+                true
+              )
+              .addField(
+                "Finish Date: ",
+                new Date(ctf.finish).toLocaleDateString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                }),
+                true
+              )
+              .addField(
+                "Finish Time: ",
+                new Date(ctf.finish).toLocaleTimeString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                }),
+                true
+              )
+              .addField("CTFTime URL: ", ctf.ctftime_url, true)
+              .addField("Type: ", ctf.format, true)
+              .setURL(ctf.url)
+              .setFooter("Times in IST (+5:30)")
+              .setDescription(
+                ctf.description.slice(0, ctf.description.length)
+              );
+            channel.send(eventEmbed);
+          }
+        })
+      }
+      else {
+        channel.send("No upcoming CTFs found with the specified information!!");
+      }
+    })
+
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+}
+
+
 getTeamInfo = async (teamId, channel) => {
   console.log(teamId);
   try {
@@ -218,6 +293,7 @@ client.on("message", async (msg) => {
     } else if (CMD.toLowerCase() === "help") {
       const helpEmbed = new MessageEmbed()
         .setTitle("Usage:\n!ctf <command> [...args]")
+        .addField("!ctf running", "Displays running CTFs")
         .addField("!ctf future n (n ∈ [1, 10])", "Displays n upcoming CTFs.")
         .addField("!ctf past n (n ∈ [1, 10])", "Displays past CTFs over last n days.")
         .addField(
@@ -225,7 +301,7 @@ client.on("message", async (msg) => {
           "Register team name with the CTFtime id"
         )
         .addField("!ctf showoff <TeamName>", "Displays team details");
-        
+
       channel.send(helpEmbed);
     } else if (CMD.toLowerCase() === "register") {
       if (args.length != 2) {
@@ -260,7 +336,11 @@ client.on("message", async (msg) => {
           );
         }
       }
-    } else {
+    }
+    else if (CMD.toLowerCase() === "running") {
+      getRunningEvents(channel);
+    }
+    else {
       channel.send("INVALID COMMAND (╯°□°）╯︵ ┻━┻");
     }
   }
