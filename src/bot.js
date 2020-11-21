@@ -293,6 +293,7 @@ client.on("message", async (msg) => {
     } else if (CMD.toLowerCase() === "help") {
       const helpEmbed = new MessageEmbed()
         .setTitle("Usage:\n!ctf <command> [...args]")
+        .addField("!ctf running", "Displays running CTFs")
         .addField("!ctf future n (n ∈ [1, 10])", "Displays n upcoming CTFs.")
         .addField("!ctf past n (n ∈ [1, 10])", "Displays past CTFs over last n days.")
         .addField(
