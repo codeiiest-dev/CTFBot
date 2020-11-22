@@ -1,11 +1,12 @@
-# CTF Bot
+<div align="center"><h1>CTFBot (Discord Bot)</h1></div>
 
-Gets the upcoming CTF details from the CTFTime API
+![CTFBot](https://socialify.git.ci/codeiiest-dev/CTFBot/image?description=1&descriptionEditable=Discord%20Bot%20to%20get%20info%20about%20CTFs&font=Source%20Code%20Pro&forks=1&issues=1&language=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Dark)
+
 
 ## Development:
 
 ```bash
-$ git clone https://github.com/sadn1ck/CTFBot
+$ git clone https://github.com/codeiiest-dev/CTFBot
 
 $ cd CTFBot
 ```
