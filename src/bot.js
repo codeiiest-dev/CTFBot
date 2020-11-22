@@ -11,6 +11,7 @@ const TEAM_URL = "https://ctftime.org/api/v1/teams/";
 const PAST_EVENTS_URL = "https://ctftime.org/api/v1/events/?start=";
 const END_URL = "&finish=";
 const RANKS_URL = "https://ctftime.org/api/v1/results/";
+const EVENT_DETAILS_URL = "https://ctftime.org/api/v1/events/";
 const HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (X11; Linux x86_64; rv:82.0) Gecko/20100101 Firefox/82.0",
@@ -259,35 +260,40 @@ getContestRanks = async (contestId, channel) => {
     const resp = await axios.get(RANKS_URL, { headers: HEADERS });
     var i;
     const ctf_details = resp.data[contestId];
+    const ctf_all_details = await axios.get(
+      EVENT_DETAILS_URL + contestId + "/",
+      { headers: HEADERS }
+    );
     if (ctf_details == null) {
       channel.send("No ctf found with the given ctf-id.");
       return;
     }
-    for (i = 0; i < 10; i++) {
+    var team_rank_array = [];
+    var team_ID_array = [];
+    var team_name_array = [];
+    for (i = 0; i < 5; i++) {
       const team_rank = ctf_details.scores[i].place;
       const team_ID = ctf_details.scores[i].team_id;
       const team_resp = await axios.get(TEAM_URL + team_ID + "/", {
         headers: HEADERS,
       });
       const team_name = team_resp.data.name;
-      var team_country = team_resp.data.country;
-      if (team_resp.data.country === "" || team_resp.data.country === "NO") {
-        team_country = "N/A";
-      }
-      const eventEmbed = new MessageEmbed()
-        .setTitle(ctf_details.title)
-        .addField("Team Rank: ", team_rank)
-        .addField("Team Id: ", team_ID)
-        .addField("Name: ", team_name)
-        .addField("Country: ", team_country);
 
-      channel.send(eventEmbed);
+      team_rank_array.push(team_rank);
+      team_ID_array.push(team_ID);
+      team_name_array.push(team_name);
     }
+    const eventEmbed = new MessageEmbed()
+      .setThumbnail(ctf_all_details.data.logo)
+      .setTitle(ctf_details.title)
+      .addField("Rank", team_rank_array, true)
+      .addField("Id", team_ID_array, true)
+      .addField("Name", team_name_array, true);
+    channel.send(eventEmbed);
   } catch (error) {
-    console.error("Error: ", error);
+    console.error("Error", error);
   }
 };
-
 client.on("ready", () => {
   console.log(` ${client.user.tag} is logged in!`);
   client.user
@@ -340,7 +346,7 @@ client.on("message", async (msg) => {
         )
         .addField(
           "!ctf getrank <ctf contest-id>",
-          "Get the top 10 rankholder of the CTF"
+          "Get the top 5 rankholder of the CTF"
         )
         .addField("!ctf showoff <TeamName>", "Displays team details");
 
