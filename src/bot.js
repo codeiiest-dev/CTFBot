@@ -150,18 +150,20 @@ getRunningEvents = async (channel) => {
     var d = Math.round(new Date().getTime() / 1000);
     var st = d - 8 * 86400;
     var end = d + 8 * 86400;
+    let flag = 0;
     // console.log(st, end, d);
-    axios
+    await axios
       .get(PAST_EVENTS_URL + st + END_URL + end + "&limit=100", {
         headers: HEADERS,
       })
-      .then((resp) => {
+      .then(async (resp) => {
         if (resp.data.length > 0) {
           resp.data.forEach(async (ctf) => {
             var ctf_start = Math.round(new Date(ctf.start).getTime() / 1000);
             var ctf_end = Math.round(new Date(ctf.finish).getTime() / 1000);
             // console.log(ctf_start, ctf_end, d);
             if (d >= ctf_start && d <= ctf_end) {
+              flag = 1
               const eventEmbed = new MessageEmbed()
                 .setThumbnail(ctf.logo)
                 .setTitle(ctf.title)
@@ -209,12 +211,11 @@ getRunningEvents = async (channel) => {
               channel.send(eventEmbed);
             }
           });
-        } else {
-          channel.send(
-            "No upcoming CTFs found with the specified information!!"
-          );
         }
       });
+    if (flag == 0) {
+      await channel.send("There are currently no running CTFs.. :(");
+    }
   } catch (error) {
     console.log("Error: ", error);
   }
